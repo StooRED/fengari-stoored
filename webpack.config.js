@@ -8,10 +8,10 @@ module.exports = [
 		This target produces a file suitable for embedding onto any webpage via a <script> tag.
 		*/
 		name: 'script-tag',
-		entry: './src/fengari-web.js',
+		entry: './src/lua_core.js',
 		target: 'web',
 		output: {
-			filename: 'fengari-web.js',
+			filename: 'lua.js',
 			library: 'fengari',
 			libraryTarget: 'umd'
 		},
@@ -45,10 +45,10 @@ module.exports = [
 		It is expected that most people would minify this with their own build process
 		*/
 		name: 'bundle',
-		entry: './src/fengari-web.js',
+		entry: './src/lua_core.js',
 		target: 'web',
 		output: {
-			filename: 'fengari-web.bundle.js',
+			filename: 'lua.bundle.js',
 			libraryTarget: 'commonjs2'
 		},
 		devtool: 'hidden-source-map',
