@@ -64,6 +64,16 @@ function init_functions(L,functions, in_table){
 				lua.lua_setglobal(L, fun_name);
 			}
 
+		}else{
+			if(in_table){
+				lua.lua_newtable(L);
+				init_functions(L,functions[fun_name],true);
+				lua.lua_settable( L, -3 );
+			}else{
+				lua.lua_newtable(L);
+				init_functions(L,functions[fun_name],true);
+				lua.lua_setglobal( L, fun_name );
+			}
 		}
 
 	}
@@ -78,6 +88,8 @@ const Lua = {
 			lua.lua_pushstring(L, args[arg_name]);
 			lua.lua_setglobal(L, arg_name);
 		}
+
+		init_functions(L, functions, false);
 
 		lauxlib.luaL_loadstring(L, to_luastring(code));
 
