@@ -20,6 +20,55 @@ import {
 	lualib
 } from 'fengari';
 
+function lua_push(L,data) {
+	if(typeof data === "string"){
+		lua.lua_pushstring(L,data);
+	}else if(typeof  data === "number"){
+		lua.lua_pushnumber(L,data);
+	}else if(typeof data === "boolean"){
+		lua.lua_pushboolean(L,data);
+	}
+}
+
+function init_functions(L,functions, in_table){
+	for (let fun_name in functions){
+		let fun = functions[fun_name];
+		if(typeof fun === "function"){
+			if(in_table){
+				lua.lua_pushstring(L, fun_name);
+			}
+			lua.lua_pushcfunction(L, function(L){
+				//console.log(lua.lua_tostring(L,1));
+				let x = 1;
+				let args = [];
+				while(lua.lua_tojsstring(L,x)){
+					args.push(lua.lua_tojsstring(L,x));
+					x++;
+				}
+				const result = functions[fun_name](...args);
+				if(Array.isArray(result)){
+					for (let i = 0; i < result.length; i++) {
+						lua_push(L,result[i]);
+					}
+					return result.length;
+				}else if(result !== undefined){
+					lua_push(L, result);
+				}else{
+					return 0;
+				}
+
+			});
+			if(in_table){
+				lua.lua_settable(L,-3);
+			}else{
+				lua.lua_setglobal(L, fun_name);
+			}
+
+		}
+
+	}
+}
+
 const Lua = {
 	"run" : (code,results,args,functions) => {
 		const L = lauxlib.luaL_newstate();
@@ -29,21 +78,7 @@ const Lua = {
 			lua.lua_pushstring(L, args[arg_name]);
 			lua.lua_setglobal(L, arg_name);
 		}
-		for (let fun_name in functions){
-			lua.lua_pushcfunction(L, function(L){
-				//console.log(lua.lua_tostring(L,1));
-				let x = 1;
-				let args = [];
-				while(lua.lua_tojsstring(L,x)){
-					args.push(lua.lua_tojsstring(L,x));
-					x++;
-				}
-				functions[fun_name](...args);
-				lua.lua_pop(L,-1);
-				return 0;
-			});
-			lua.lua_setglobal(L, fun_name);
-		}
+
 		lauxlib.luaL_loadstring(L, to_luastring(code));
 
 		if (lua.lua_pcall(L, 0, results, 0) !== 0){
