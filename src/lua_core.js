@@ -53,6 +53,7 @@ function init_functions(L,functions, in_table){
 					return result.length;
 				}else if(result !== undefined){
 					lua_push(L, result);
+					return 1;
 				}else{
 					return 0;
 				}
@@ -85,7 +86,7 @@ const Lua = {
 
 		//lualib.luaL_openlibs(L);
 		for(let arg_name in args){
-			lua.lua_pushstring(L, args[arg_name]);
+			lua_push(L, args[arg_name]);
 			lua.lua_setglobal(L, arg_name);
 		}
 
